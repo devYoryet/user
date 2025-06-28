@@ -6,8 +6,48 @@ spring:
     driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop  # Temporal para recrear tablas
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.OracleDialect
+
+  # Configuración básica de email (temporal)
+   # Desactivar Eureka temporalmente
+  cloud:
+    discovery:
+      enabled: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: temp@gmail.com
+    password: temppassword
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+# Configuración JWT propia (sin Keycloak)
+jwt:
+  secret: tu_clave_secreta_super_segura_aqui_2024_salon_booking_system
+  expiration: 86400000  # 24 horas
+
+server:
+  port: 8081  # Usar puerto diferente a Keycloak
