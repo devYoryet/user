@@ -1,4 +1,3 @@
-// 2. JwtAuthenticationFilter.java - Filtro de autenticación
 package com.zosh.configrations;
 
 import com.zosh.service.UserService;
@@ -28,36 +27,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserService userService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
-                                  FilterChain filterChain) throws ServletException, IOException {
-        
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+
         final String authorizationHeader = request.getHeader("Authorization");
 
         String email = null;
         String jwt = null;
 
+        // Extraer JWT del header Authorization
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             try {
                 email = jwtUtil.extractEmail(jwt);
+                System.out.println("JWT Filter - Email extracted: " + email);
             } catch (Exception e) {
-                // Token inválido
+                System.out.println("JWT Filter - Error extracting email: " + e.getMessage());
             }
         }
 
+        // Si tenemos email y no hay autenticación previa
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.validateToken(jwt, email)) {
-                String role = jwtUtil.extractRole(jwt);
-                UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(
-                        email, null, 
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-                    );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                // Validar token
+                if (jwtUtil.validateToken(jwt, email)) {
+                    String role = jwtUtil.extractRole(jwt);
+                    System.out.println("JWT Filter - Role extracted: " + role);
+
+                    // Crear autenticación
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            email, null,
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    System.out.println("JWT Filter - Authentication set for: " + email + " with role: " + role);
+                } else {
+                    System.out.println("JWT Filter - Token validation failed for: " + email);
+                }
+            } catch (Exception e) {
+                System.out.println("JWT Filter - Authentication error: " + e.getMessage());
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }
-
