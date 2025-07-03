@@ -17,7 +17,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
-      ddl-auto: create-drop  # Temporal para recrear tablas
+      ddl-auto: validate #create-drop  # Temporal para recrear tablas
     show-sql: true
     properties:
       hibernate:
