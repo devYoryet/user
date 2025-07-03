@@ -1,3 +1,6 @@
+server:
+  port: 8081  # Usar puerto diferente a Keycloak
+
 spring:
   datasource:
     url: jdbc:oracle:thin:@tlz3t5ba8btq7pbd_high?TNS_ADMIN=src/main/resources/wallet_tlz3t5ba8btq7pbd
@@ -49,5 +52,3 @@ jwt:
   secret: tu_clave_secreta_super_segura_aqui_2024_salon_booking_system
   expiration: 86400000  # 24 horas
 
-server:
-  port: 8081  # Usar puerto diferente a Keycloak
