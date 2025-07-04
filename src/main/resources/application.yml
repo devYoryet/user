@@ -1,34 +1,56 @@
 server:
-  port: 8081  # Usar puerto diferente a Keycloak
+  port: 8081
 
 spring:
+  application:
+    name: user-service
+  
   datasource:
     url: jdbc:oracle:thin:@tlz3t5ba8btq7pbd_high?TNS_ADMIN=src/main/resources/wallet_tlz3t5ba8btq7pbd
     username: ADMIN2
     password: Admin1234567
     driver-class-name: oracle.jdbc.OracleDriver
+    
+    # CONFIGURACIÓN HIKARI OPTIMIZADA PARA ORACLE CLOUD
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      maximum-pool-size: 5          # Reducir pool para evitar timeouts
+      minimum-idle: 1               # Mínimo de conexiones
+      connection-timeout: 60000     # 60 segundos para conectar
+      idle-timeout: 300000          # 5 minutos idle (Oracle Cloud timeout)
+      max-lifetime: 900000          # 15 minutos máximo de vida
+      leak-detection-threshold: 60000
+      
+      # CRÍTICO: Test query para Oracle
+      connection-test-query: SELECT 1 FROM DUAL
+      validation-timeout: 5000
+      
+      # Propiedades adicionales Oracle
+      data-source-properties:
+        oracle.jdbc.ReadTimeout: 60000
+        oracle.net.CONNECT_TIMEOUT: 60000
+        oracle.jdbc.LoginTimeout: 60000
 
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
-      ddl-auto: none  # Usa 'none' para no modificar el esquema
+      ddl-auto: none              # MANTENER EN 'none'
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.OracleDialect
+        # Configuración específica para Oracle
+        jdbc:
+          time_zone: UTC
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
 
   mail:
     host: smtp.gmail.com
     port: 587
-    username: temp@gmail.com
-    password: temppassword
+    username: gedelashipa.1321@gmail.com
+    password: rlxz dggl spmd byfd
     properties:
       mail:
         smtp:
@@ -36,23 +58,41 @@ spring:
           starttls:
             enable: true
 
-  cloud:
-    discovery:
-      enabled: false  # Desactivar Eureka discovery temporalmente
-
+# DESACTIVAR EUREKA
 eureka:
   client:
-    enabled: true
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
 
+# JWT CONFIGURATION
 jwt:
   secret: tu_clave_secreta_super_segura_aqui_2024_salon_booking_system
-  expiration: 86400000  # 24 horas
+  expiration: 86400000
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# LOGGING OPTIMIZADO
+logging:
+  level:
+    com.zosh: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    # Logs Oracle para debugging connection
+    com.zaxxer.hikari: DEBUG
+    oracle.jdbc: WARN             # Solo errores Oracle
+    oracle.net: WARN              # Solo errores de red
