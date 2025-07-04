@@ -17,18 +17,12 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
-      ddl-auto: validate #create-drop  # Temporal para recrear tablas
+      ddl-auto: none  # Usa 'none' para no modificar el esquema
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.OracleDialect
-
-  # Configuración básica de email (temporal)
-   # Desactivar Eureka temporalmente
-  cloud:
-    discovery:
-      enabled: false
 
   mail:
     host: smtp.gmail.com
@@ -42,13 +36,23 @@ spring:
           starttls:
             enable: true
 
+  cloud:
+    discovery:
+      enabled: false  # Desactivar Eureka discovery temporalmente
+
 eureka:
   client:
-    enabled: false
-    register-with-eureka: false
-    fetch-registry: false
-# Configuración JWT propia (sin Keycloak)
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
 jwt:
   secret: tu_clave_secreta_super_segura_aqui_2024_salon_booking_system
   expiration: 86400000  # 24 horas
-

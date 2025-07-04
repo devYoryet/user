@@ -11,13 +11,12 @@ public class HomeController {
 
     @GetMapping("/users/home")
     public ResponseEntity<ApiResponse> HomeControllerHandler() {
-        
+
         return ResponseEntity.status(
-                        HttpStatus.OK)
+                HttpStatus.OK)
                 .body(new ApiResponse(
 
                         "welcome to zosh property booking system, user api"
-
 
                 ));
     }
